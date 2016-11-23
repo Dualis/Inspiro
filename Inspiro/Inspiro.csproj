@@ -124,6 +124,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Responder\MarxResponder.cs" />
+    <Compile Include="Responder\ArnieResponder.cs" />
+    <Compile Include="Responder\Responder.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
