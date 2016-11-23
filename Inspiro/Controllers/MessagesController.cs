@@ -22,12 +22,39 @@ namespace Inspiro
             if (activity.Type == ActivityTypes.Message)
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+                StateClient stateClient = activity.GetStateClient();
+                BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);   
                 // calculate something for us to return
-                int length = (activity.Text ?? string.Empty).Length;
+                string text = (activity.Text ?? string.Empty);
+                int length = text.Length;
+                string replyStr = string.Empty;
+                //Sets the users preferred responder
+                //Does not check if a responder exists with that name
+                if (text.StartsWith("!"))
+                {
+                    if (length == 1)
+                    {
+                        await stateClient.BotState.DeleteStateForUserAsync(activity.ChannelId, activity.From.Id);
+                        replyStr = "User data cleared";
+                    }
+                    else
+                    {
+                        userData.SetProperty<string>("Responder", text.Substring(1));
+                    }
+                }
+                else
+                {
 
-                // return our reply to the user
-                Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
-                await connector.Conversations.ReplyToActivityAsync(reply);
+                }
+
+
+                if (replyStr.Length > 0)
+                {
+                    // return our reply to the user
+                    Activity reply = activity.CreateReply(replyStr);
+                    await connector.Conversations.ReplyToActivityAsync(reply);
+                }
+                
             }
             else
             {
