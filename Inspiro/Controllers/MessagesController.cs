@@ -7,6 +7,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
+using Microsoft.WindowsAzure.MobileServices;
 
 namespace Inspiro
 {
@@ -28,23 +29,19 @@ namespace Inspiro
                 string text = (activity.Text ?? string.Empty);
                 int length = text.Length;
                 string replyStr = string.Empty;
-                //Sets the users preferred responder
-                //Does not check if a responder exists with that name
-                if (text.StartsWith("!"))
-                {
-                    if (length == 1)
-                    {
-                        await stateClient.BotState.DeleteStateForUserAsync(activity.ChannelId, activity.From.Id);
-                        replyStr = "User data cleared";
-                    }
-                    else
-                    {
-                        userData.SetProperty<string>("Responder", text.Substring(1));
-                    }
-                }
-                else
-                {
 
+                //If block for user input
+                if (text.StartsWith("clear"))
+                {
+                    await stateClient.BotState.DeleteStateForUserAsync(activity.ChannelId, activity.From.Id);
+                    replyStr = "User data cleared";
+                }
+                else if (text.StartsWith("use"))
+                {
+                    //Sets the users preferred responder
+                    //Does not check if a responder exists with that name
+                    userData.SetProperty<string>("Responder", text.Substring(4));
+                    
                 }
 
 

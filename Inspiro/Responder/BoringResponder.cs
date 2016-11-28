@@ -5,25 +5,24 @@ using System.Web;
 
 namespace Inspiro.Responder
 {
-    public class MarxResponder:Responder
+    public class BoringResponder:Responder
     {
-        private string greetingStr = "I am nothing but I must be everything";
-        private string farewellStr = "The last capitalist we hang shall be the one who sold us the rope";
-        private string positiveStr = "The less you are, the more you have";
-        private string neutralStr = "The true law of Economics is chance";
-        private string negativeStr = "Rise up, and seize the means of production";
-        private string unknownStr = "Reason has always existed, but not always in a reasonable form";
-        private string questionStr = "Comrade, ";
-        private string affirmativeStr = "I have, of course, so worded my proposition as to be right either way";
-
-
-        private static MarxResponder instance;
+        
+        private string greetingStr = "Hello, I am a generic bot";
+        private string farewellStr = "Have a nice day";
+        private string positiveStr = "This is good";
+        private string neutralStr = "This is okay";
+        private string negativeStr = "This is bad";
+        private string unknownStr = "Sorry, I don't understand";
+        private string questionStr = "Please, ";
+        private string affirmativeStr = "Affirmative";
+        private static BoringResponder instance;
 
         public static Responder getInstance()
         {
             if (instance != null) return instance;
 
-            instance = new MarxResponder();
+            instance = new BoringResponder();
             return instance;
         }
 
@@ -66,5 +65,6 @@ namespace Inspiro.Responder
         {
             return affirmativeStr;
         }
+
     }
 }

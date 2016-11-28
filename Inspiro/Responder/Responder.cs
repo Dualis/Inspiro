@@ -5,58 +5,31 @@ using System.Web;
 
 namespace Inspiro.Responder
 {
-    public class Responder
+    public abstract class Responder
     {
-        private string greetingStr = "Hello, I am a generic bot";
-        private string farewellStr = "Have a nice day";
-        private string positiveStr = "This is good";
-        private string neutralStr = "This is okay";
-        private string negativeStr = "This is bad";
-        private string unknownStr = "Sorry, I don't understand";
-        private string questionStr = "Please, ";
-        private string affirmativeStr = "Affirmative";
-        public string greeting()
-        {
-            return greetingStr;
-        }
 
-        public string farewell()
-        {
-            return farewellStr;
-        }
+        public abstract string greeting();
 
-        public string positive()
-        {
-            return positiveStr;
-        }
+        public abstract string farewell();
 
-        public string neutral()
-        {
-            return neutralStr;
-        }
+        public abstract string positive();
 
-        public string negative()
-        {
-            return negativeStr;
-        }
+        public abstract string neutral();
 
-        public string unknown()
-        {
-            return unknownStr;
-        }
+        public abstract string negative();
 
-        public string question()
-        {
-            return questionStr;
-        }
+        public abstract string unknown();
 
-        public string affirmative()
-        {
-            return affirmativeStr;
-        }
+        public abstract string question();
+
+        public abstract string affirmative();
+
+
         public static Responder getResponder(string name)
         {
-            return new Responder();
+            if      (name.StartsWith("arn", StringComparison.CurrentCultureIgnoreCase)) return ArnieResponder.getInstance();
+            else if (name.StartsWith("marx", StringComparison.CurrentCultureIgnoreCase)) return ArnieResponder.getInstance();
+            else return BoringResponder.getInstance();
         }
     }
 }
