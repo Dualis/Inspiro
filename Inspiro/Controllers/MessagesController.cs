@@ -25,8 +25,8 @@ namespace Inspiro
             if (activity.Type == ActivityTypes.Message)
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-                StateClient stateClient = activity.GetStateClient();
-                BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);   
+                //StateClient stateClient = activity.GetStateClient();
+                //BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);   
                 
                 string text = (activity.Text ?? string.Empty);
                 int length = text.Length;
@@ -35,22 +35,23 @@ namespace Inspiro
                 //If block for user input
                 if (text.StartsWith("clear"))
                 {
-                    await stateClient.BotState.DeleteStateForUserAsync(activity.ChannelId, activity.From.Id);
+                   // await stateClient.BotState.DeleteStateForUserAsync(activity.ChannelId, activity.From.Id);
                     replyStr = "User data cleared";
                 }
                 else if (text.StartsWith("use"))
                 {
                     //Sets the users preferred responder
                     //Does not check if a responder exists with that name
-                    userData.SetProperty<string>("Responder", text.Substring(4));
+                   // userData.SetProperty<string>("Responder", text.Substring(4));
                     
                 }
                 else if (text.StartsWith("quote"))
                 {
-                    string responderName = userData.GetProperty<string>("Responder");
-                    Responder responder = Responder.GetResponder(responderName);
-                    replyStr = getRandomQuote(responder.getName());
+                   // string responderName = userData.GetProperty<string>("Responder");
+                    //Responder responder = Responder.GetResponder(responderName);
+                    //replyStr = getRandomQuote(responder.getName());
                 }
+
 
                 if (replyStr.Length > 0)
                 {
