@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Inspiro.Responder
+namespace Inspiro.Responders
 {
     public class MarxResponder:Responder
     {
@@ -16,6 +16,10 @@ namespace Inspiro.Responder
         private string questionStr = "Comrade, ";
         private string affirmativeStr = "I have, of course, so worded my proposition as to be right either way";
 
+        public override string getName()
+        {
+            return "Karl Marx";
+        }
 
         private static MarxResponder instance;
 

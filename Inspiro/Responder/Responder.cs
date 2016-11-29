@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Inspiro.Responder
+namespace Inspiro.Responders
 {
     public abstract class Responder
     {
@@ -24,8 +24,9 @@ namespace Inspiro.Responder
 
         public abstract string affirmative();
 
+        public abstract string getName();
 
-        public static Responder getResponder(string name)
+        public static Responder GetResponder(string name)
         {
             if      (name.StartsWith("arn", StringComparison.CurrentCultureIgnoreCase)) return ArnieResponder.getInstance();
             else if (name.StartsWith("marx", StringComparison.CurrentCultureIgnoreCase)) return ArnieResponder.getInstance();

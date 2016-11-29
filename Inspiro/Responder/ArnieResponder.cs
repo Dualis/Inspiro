@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Inspiro.Responder
+namespace Inspiro.Responders
 {
     public class ArnieResponder:Responder
     {
@@ -16,6 +16,10 @@ namespace Inspiro.Responder
         private string questionStr = "Hey you, ";
         private string affirmativeStr = "No Problemo";
 
+        public override string getName()
+        {
+            return "Arnold Schwarzenegger";
+        }
         private static ArnieResponder instance;
 
         public static Responder getInstance()

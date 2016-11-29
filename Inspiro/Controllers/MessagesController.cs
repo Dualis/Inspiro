@@ -5,9 +5,11 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.IO;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using Microsoft.WindowsAzure.MobileServices;
+using Inspiro.Responders;
 
 namespace Inspiro
 {
@@ -25,7 +27,7 @@ namespace Inspiro
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                 StateClient stateClient = activity.GetStateClient();
                 BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);   
-                // calculate something for us to return
+                
                 string text = (activity.Text ?? string.Empty);
                 int length = text.Length;
                 string replyStr = string.Empty;
@@ -43,7 +45,12 @@ namespace Inspiro
                     userData.SetProperty<string>("Responder", text.Substring(4));
                     
                 }
-
+                else if (text.StartsWith("quote"))
+                {
+                    string responderName = userData.GetProperty<string>("Responder");
+                    Responder responder = Responder.GetResponder(responderName);
+                    replyStr = getRandomQuote(responder.getName());
+                }
 
                 if (replyStr.Length > 0)
                 {
@@ -60,6 +67,37 @@ namespace Inspiro
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
+
+        /// <summary>
+        /// Polls an external api for a random quote from the author with the given name
+        /// 
+        /// </summary>
+        private string getRandomQuote(string name)
+        {
+            //Sets name to anon if empty
+            if (name == string.Empty) name = "Anonymous";
+            string uriString = "http://en.wikiquote.org/w/api.php?action=query&prop=revisions&rvprop=content&format=php&titles=" + name;
+            Uri address = new Uri(uriString);
+            HttpWebRequest req = HttpWebRequest.Create(address) as HttpWebRequest;
+
+            HttpWebResponse resp = req.GetResponse() as HttpWebResponse;
+
+            StreamReader reader = new StreamReader(resp.GetResponseStream());
+            string response = reader.ReadToEnd();
+
+            //Cleanup response
+            response = response.Substring(response.IndexOf("== Quotes =="));
+            response = response.Substring(response.IndexOf("==External links=="));
+
+
+            string[] quotes = response.Split("\n* ".ToCharArray());
+
+            //TODO:More cleanup
+            double index = 1.0 + new Random().NextDouble() * quotes.Length;
+            return quotes[(int) index];
+        }
+
+
 
         private Activity HandleSystemMessage(Activity message)
         {

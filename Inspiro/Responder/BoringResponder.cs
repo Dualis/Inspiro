@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Inspiro.Responder
+namespace Inspiro.Responders
 {
     public class BoringResponder:Responder
     {
@@ -17,6 +17,11 @@ namespace Inspiro.Responder
         private string questionStr = "Please, ";
         private string affirmativeStr = "Affirmative";
         private static BoringResponder instance;
+
+        public override string getName()
+        {
+            return "Anonymous";
+        }
 
         public static Responder getInstance()
         {
