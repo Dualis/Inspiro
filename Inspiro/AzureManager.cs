@@ -1,31 +1,33 @@
 ﻿using Microsoft.WindowsAzure.MobileServices;
-
-public class AzureManager
+namespace Inspiro
 {
-
-    private static AzureManager instance;
-    private MobileServiceClient client;
-
-    private AzureManager()
+    public class AzureManager
     {
-        this.client = new MobileServiceClient("MOBILE_APP_URL");
-    }
 
-    public MobileServiceClient AzureClient
-    {
-        get { return client; }
-    }
+        private static AzureManager instance;
+        private MobileServiceClient client;
 
-    public static AzureManager AzureManagerInstance
-    {
-        get
+        private AzureManager()
         {
-            if (instance == null)
-            {
-                instance = new AzureManager();
-            }
+            this.client = new MobileServiceClient("MOBILE_APP_URL");
+        }
 
-            return instance;
+        public MobileServiceClient AzureClient
+        {
+            get { return client; }
+        }
+
+        public static AzureManager AzureManagerInstance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new AzureManager();
+                }
+
+                return instance;
+            }
         }
     }
 }
