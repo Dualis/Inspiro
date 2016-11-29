@@ -8,7 +8,7 @@ using System.Web.Http.Description;
 using System.IO;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
-//using Microsoft.WindowsAzure.MobileServices;
+using Microsoft.WindowsAzure.MobileServices;
 //using Inspiro.Responders;
 
 namespace Inspiro
