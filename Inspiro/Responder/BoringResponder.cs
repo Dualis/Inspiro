@@ -16,6 +16,11 @@ namespace Inspiro.Responders
         private string unknownStr = "Sorry, I don't understand";
         private string questionStr = "Please, ";
         private string affirmativeStr = "Affirmative";
+
+        private string positiveImage = "https://cdn2.iconfinder.com/data/icons/ios-7-style-metro-ui-icons/512/MetroUI_iCloud.png";
+        private string neutralImage = "https://cdn2.iconfinder.com/data/icons/ios-7-style-metro-ui-icons/512/MetroUI_iCloud.png";
+        private string negativeImage = "https://cdn2.iconfinder.com/data/icons/ios-7-style-metro-ui-icons/512/MetroUI_iCloud.png";
+
         private static BoringResponder instance;
 
         public override string getName()
@@ -69,6 +74,21 @@ namespace Inspiro.Responders
         public override string affirmative()
         {
             return affirmativeStr;
+        }
+
+        public override string positiveImageUrl()
+        {
+            return neutralImage;
+        }
+
+        public override string neutralImageUrl()
+        {
+            return neutralImage;
+        }
+
+        public override string negativeImageUrl()
+        {
+            return negativeImage;
         }
 
     }

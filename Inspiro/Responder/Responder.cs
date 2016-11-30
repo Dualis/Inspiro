@@ -18,6 +18,12 @@ namespace Inspiro.Responders
 
         public abstract string negative();
 
+        public abstract string positiveImageUrl();
+
+        public abstract string neutralImageUrl();
+
+        public abstract string negativeImageUrl();
+
         public abstract string unknown();
 
         public abstract string question();

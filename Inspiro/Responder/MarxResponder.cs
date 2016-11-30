@@ -15,6 +15,9 @@ namespace Inspiro.Responders
         private string unknownStr = "Reason has always existed, but not always in a reasonable form";
         private string questionStr = "Comrade, ";
         private string affirmativeStr = "I have, of course, so worded my proposition as to be right either way";
+        private string positiveImage = "https://upload.wikimedia.org/wikipedia/commons/5/50/Marx_color2.jpg";
+        private string neutralImage = "https://upload.wikimedia.org/wikipedia/commons/5/50/Marx_color2.jpg";
+        private string negativeImage = "https://upload.wikimedia.org/wikipedia/commons/5/5f/Tesserapcd21.jpg";
 
         public override string getName()
         {
@@ -22,6 +25,7 @@ namespace Inspiro.Responders
         }
 
         private static MarxResponder instance;
+       
 
         public static Responder getInstance()
         {
@@ -69,6 +73,21 @@ namespace Inspiro.Responders
         public override string affirmative()
         {
             return affirmativeStr;
+        }
+
+        public override string positiveImageUrl()
+        {
+            return neutralImage;
+        }
+
+        public override string neutralImageUrl()
+        {
+            return neutralImage;
+        }
+
+        public override string negativeImageUrl()
+        {
+            return negativeImage;
         }
     }
 }

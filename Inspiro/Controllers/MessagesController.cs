@@ -46,7 +46,7 @@ namespace Inspiro
                 }
 
                 Accounts userAccount = await getUserAccount(name);
-
+                Responder responder = Responder.GetResponder(responderName);
 
                 //If block for user input
                 if (text.StartsWith("clear"))
@@ -64,12 +64,12 @@ namespace Inspiro
                 else if (text.StartsWith("quote"))
                 {
                     string responderName = userData.GetProperty<string>("Responder");
-                    Responder responder = Responder.GetResponder(responderName);
                     replyStr = getRandomQuote(responder.getName());
                 }
                 else if (text.ToLower().Contains("balance"))
                 {
-
+                    Activity balanceCardReply = await getFullBalance(userAccount, responder, activity);
+                    await connector.Conversations.SendToConversationAsync(balanceCardReply);
                 }
 
 
@@ -88,6 +88,48 @@ namespace Inspiro
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
+
+        private async Task<Activity> getFullBalance(Accounts userAccount, Responder responder, Activity activity)
+        {
+            string comment;
+            string imageUrl;
+            if(userAccount.Cheque + userAccount.Savings > 10000)
+            {
+                comment = responder.positive();
+                imageUrl = responder.positiveImageUrl();
+            }
+            else if (userAccount.Cheque + userAccount.Savings > 100)
+            {
+                comment = responder.neutral();
+                imageUrl = responder.neutralImageUrl();
+            }
+            else
+            {
+                comment = responder.negative();
+                imageUrl = responder.negativeImageUrl();
+            }
+
+            Activity replyToConversation = activity.CreateReply(comment);
+            replyToConversation.Recipient = activity.From;
+            replyToConversation.Type = "message";
+            replyToConversation.Attachments = new List<Attachment>();
+
+            List<CardImage> cardImages = new List<CardImage>();
+            cardImages.Add(new CardImage(url: imageUrl));
+
+            ThumbnailCard balanceCard = new ThumbnailCard()
+            {
+                Title = "Your Balance",
+                Subtitle = $"Cheque Account: {userAccount.Cheque}\n Savings Account: {userAccount.Savings}",
+                Images = cardImages
+            };
+
+            Attachment balanceAttachment = balanceCard.ToAttachment();
+            replyToConversation.Attachments.Add(balanceAttachment);
+            return replyToConversation;
+        }
+
+
 
         private static async Task<Accounts> getUserAccount(string name)
         {
