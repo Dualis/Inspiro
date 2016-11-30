@@ -37,7 +37,7 @@ namespace Inspiro
 
                 string name = String.Empty;
                 string userId = activity.From.Id.ToString();
-                bool loggedIn = await authoriseUser(activity, connector, text, userId);
+                bool loggedIn = true;// await authoriseUser(activity, connector, text, userId);
 
                 if (!loggedIn)
                 {
@@ -46,6 +46,7 @@ namespace Inspiro
                 }
 
                 Accounts userAccount = await getUserAccount(name);
+                string responderName = userData.GetProperty<string>("Responder");
                 Responder responder = Responder.GetResponder(responderName);
 
                 //If block for user input
@@ -63,7 +64,7 @@ namespace Inspiro
                 }
                 else if (text.StartsWith("quote"))
                 {
-                    string responderName = userData.GetProperty<string>("Responder");
+                    
                     replyStr = getRandomQuote(responder.getName());
                 }
                 else if (text.ToLower().Contains("balance"))
