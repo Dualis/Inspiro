@@ -8,6 +8,9 @@ namespace Inspiro.DataModels
         [JsonProperty(PropertyName = "Id")]
         public string ID { get; set; }
 
+        [JsonProperty(PropertyName = "userId")]
+        public string UserId { get; set; }
+
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 

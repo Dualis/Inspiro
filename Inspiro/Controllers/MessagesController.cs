@@ -9,6 +9,9 @@ using System.IO;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using Microsoft.WindowsAzure.MobileServices;
+using Inspiro.Responders;
+using System.Collections.Generic;
+using Inspiro.DataModels;
 //using Inspiro.Responders;
 
 namespace Inspiro
@@ -25,31 +28,48 @@ namespace Inspiro
             if (activity.Type == ActivityTypes.Message)
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-                //StateClient stateClient = activity.GetStateClient();
-                //BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);   
-                
-                string text = (activity.Text ?? string.Empty);
+                StateClient stateClient = activity.GetStateClient();
+                BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
+
+                string text = (activity.Text ?? string.Empty).ToLower();
                 int length = text.Length;
                 string replyStr = string.Empty;
+
+                string name = String.Empty;
+                string userId = activity.From.Id.ToString();
+                bool loggedIn = await authoriseUser(activity, connector, text, userId);
+
+                if (!loggedIn)
+                {
+                    var responseOut = Request.CreateResponse(HttpStatusCode.OK);
+                    return responseOut;
+                }
+
+                Accounts userAccount = await getUserAccount(name);
+
 
                 //If block for user input
                 if (text.StartsWith("clear"))
                 {
-                   // await stateClient.BotState.DeleteStateForUserAsync(activity.ChannelId, activity.From.Id);
+                    await stateClient.BotState.DeleteStateForUserAsync(activity.ChannelId, activity.From.Id);
                     replyStr = "User data cleared";
                 }
                 else if (text.StartsWith("use"))
                 {
                     //Sets the users preferred responder
                     //Does not check if a responder exists with that name
-                   // userData.SetProperty<string>("Responder", text.Substring(4));
-                    
+                    userData.SetProperty<string>("Responder", text.Substring(4));
+
                 }
                 else if (text.StartsWith("quote"))
                 {
-                   // string responderName = userData.GetProperty<string>("Responder");
-                    //Responder responder = Responder.GetResponder(responderName);
-                    //replyStr = getRandomQuote(responder.getName());
+                    string responderName = userData.GetProperty<string>("Responder");
+                    Responder responder = Responder.GetResponder(responderName);
+                    replyStr = getRandomQuote(responder.getName());
+                }
+                else if (text.ToLower().Contains("balance"))
+                {
+
                 }
 
 
@@ -59,7 +79,7 @@ namespace Inspiro
                     Activity reply = activity.CreateReply(replyStr);
                     await connector.Conversations.ReplyToActivityAsync(reply);
                 }
-                
+
             }
             else
             {
@@ -67,6 +87,87 @@ namespace Inspiro
             }
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
+        }
+
+        private static async Task<Accounts> getUserAccount(string name)
+        {
+            List<Accounts> accounts = await AzureManager.AzureManagerInstance.GetAccounts();
+            Accounts userAccounts = null;
+
+            //Finds the account for this user
+            foreach (Accounts acc in accounts)
+            {
+                if (acc.Owner.Equals(name))
+                {
+                    userAccounts = acc;
+                    break;
+                }
+            }
+
+            //Create new account
+            if (userAccounts == null)
+            {
+                userAccounts = new Accounts()
+                {
+                    Owner = name,
+                    Cheque = 0.0,
+                    Savings = 0.0,
+                    DateCreated = DateTime.Now,
+                    DateAccessed = DateTime.Now
+
+                };
+                await AzureManager.AzureManagerInstance.AddAccounts(userAccounts);
+            }
+
+            return userAccounts;
+        }
+
+        private static async Task<bool> authoriseUser(Activity activity, ConnectorClient connector, string text, string userId)
+        {
+            List<Auth> auths = await AzureManager.AzureManagerInstance.GetAuths();
+            Auth userAuth = null;
+            bool loggedIn = false;
+
+            //Finds the account for this user
+            foreach (Auth auth in auths)
+            {
+                if (auth.UserId.Equals(userId))
+                {
+                    userAuth = auth;
+                    break;
+                }
+            }
+
+            //Create new auth
+            if (userAuth == null)
+            {
+                userAuth = new Auth()
+                {
+                    UserId = userId,
+                    DateCreated = DateTime.Now,
+                    DateAccessed = DateTime.Now
+
+                };
+                await AzureManager.AzureManagerInstance.AddAuth(userAuth);
+                Activity reply = activity.CreateReply("Please set a name and password in the form \"set NAME:PASSWORD\"");
+                await connector.Conversations.ReplyToActivityAsync(reply);
+                loggedIn = true;
+            }
+            else if (DateTime.Now.Subtract(userAuth.DateAccessed).TotalHours > 24)
+            {
+                if (text.StartsWith("login"))
+                {
+                    if (text.Substring(6).Equals(userAuth.Password))
+                    {
+                        Activity reply = activity.CreateReply("Wrong password");
+                        await connector.Conversations.ReplyToActivityAsync(reply);
+                    }
+                    else loggedIn = true;
+                }
+
+            }
+            else loggedIn = true;
+            return loggedIn;
         }
 
         /// <summary>
