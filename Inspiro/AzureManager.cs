@@ -29,6 +29,18 @@ namespace Inspiro
         {
             return await this.authTable.ToListAsync();
         }
+
+        public async Task UpdateAuths(Auth auth)
+        {
+            await this.authTable.UpdateAsync(auth);
+        }
+
+        public async Task DeleteAuths(Auth auth)
+        {
+            await this.authTable.DeleteAsync(auth);
+        }
+
+
         public async Task AddAccounts(Accounts acc)
         {
             await this.accountsTable.InsertAsync(acc);
@@ -37,6 +49,16 @@ namespace Inspiro
         public async Task<List<Accounts>> GetAccounts()
         {
             return await this.accountsTable.ToListAsync();
+        }
+
+        public async Task UpdateAccounts(Accounts accounts)
+        {
+            await this.accountsTable.UpdateAsync(accounts);
+        }
+
+        public async Task DeleteAccounts(Accounts accounts)
+        {
+            await this.accountsTable.DeleteAsync(accounts);
         }
 
         public MobileServiceClient AzureClient

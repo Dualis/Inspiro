@@ -12,7 +12,7 @@ using Microsoft.WindowsAzure.MobileServices;
 using Inspiro.Responders;
 using System.Collections.Generic;
 using Inspiro.DataModels;
-//using Inspiro.Responders;
+using Inspiro.Responders;
 
 namespace Inspiro
 {
@@ -79,6 +79,8 @@ namespace Inspiro
                 if (text.StartsWith("clear"))
                 {
                     await stateClient.BotState.DeleteStateForUserAsync(activity.ChannelId, activity.From.Id);
+                    Auth auth = await getUserAuth(userId);
+                    await AzureManager.AzureManagerInstance.DeleteAuths(auth);
                     replyStr = "User data cleared";
                 }
                 else if (text.StartsWith("use"))
@@ -112,7 +114,7 @@ namespace Inspiro
                         double changeValue = Double.Parse(change);
                         userAccount.Cheque = userAccount.Cheque + changeValue;
 
-                        await AzureManager.AzureManagerInstance.AddAccounts(userAccount);
+                        await AzureManager.AzureManagerInstance.UpdateAccounts(userAccount);
                         string imageUrl;
                         if (changeValue >= 0.0) imageUrl = responder.positiveImageUrl();
                         else imageUrl = responder.negativeImageUrl();
@@ -137,7 +139,7 @@ namespace Inspiro
                         double changeValue = Double.Parse(change);
                         userAccount.Savings = userAccount.Savings + changeValue;
 
-                        await AzureManager.AzureManagerInstance.AddAccounts(userAccount);
+                        await AzureManager.AzureManagerInstance.UpdateAccounts(userAccount);
                         string imageUrl;
                         if (changeValue >= 0.0) imageUrl = responder.positiveImageUrl();
                         else imageUrl = responder.negativeImageUrl();
@@ -181,7 +183,7 @@ namespace Inspiro
         {
             string comment;
             string imageUrl;
-            if(userAccount.Cheque + userAccount.Savings > 10000)
+            if (userAccount.Cheque + userAccount.Savings > 10000)
             {
                 comment = responder.positive();
                 imageUrl = responder.positiveImageUrl();
@@ -278,22 +280,10 @@ namespace Inspiro
             return userAccounts;
         }
 
-        private static async Task<bool> authoriseUser(Activity activity, ConnectorClient connector, string text, string userId)
+        private async Task<bool> authoriseUser(Activity activity, ConnectorClient connector, string text, string userId)
         {
-            List<Auth> auths = await AzureManager.AzureManagerInstance.GetAuths();
-            Auth userAuth = null;
             bool loggedIn = false;
-
-            //Finds the account for this user
-            foreach (Auth auth in auths)
-            {
-                if (auth.UserId.Equals(userId))
-                {
-                    userAuth = auth;
-                    break;
-                }
-            }
-
+            Auth userAuth = await getUserAuth(userId);
             //Create new auth
             if (userAuth == null)
             {
@@ -324,6 +314,25 @@ namespace Inspiro
             }
             else loggedIn = true;
             return loggedIn;
+        }
+
+        public async Task<Auth> getUserAuth(string userId)
+        {
+            List<Auth> auths = await AzureManager.AzureManagerInstance.GetAuths();
+            Auth userAuth = null;
+            
+
+            //Finds the account for this user
+            foreach (Auth auth in auths)
+            {
+                if (auth.UserId.Equals(userId))
+                {
+                    userAuth = auth;
+                    break;
+                }
+            }
+
+            return userAuth;
         }
 
         /// <summary>

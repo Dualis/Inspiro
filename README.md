@@ -15,7 +15,7 @@ use NAME
 		Karl Marx
 
 clear
-	Clears the bot state data
+	Clears all login and bot state data for the user
 
 quote
 	Get a random quote from the chosen person
