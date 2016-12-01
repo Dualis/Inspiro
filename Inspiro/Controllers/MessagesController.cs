@@ -95,13 +95,69 @@ namespace Inspiro
                 else if (text.StartsWith("quote"))
                 {
                     string quote = getRandomQuote(responder.getName());
-                    Activity quoteCard = await buildCardResponse(activity, $"Now using {responder.getName()}", "", quote, responder.neutralImageUrl());
+                    Activity quoteCard = await buildCardResponse(activity, "", "", quote, responder.neutralImageUrl());
                     await connector.Conversations.SendToConversationAsync(quoteCard);
                 }
                 else if (text.StartsWith("balance"))
                 {
                     Activity balanceCardReply = await getFullBalance(userAccount, responder, activity);
                     await connector.Conversations.SendToConversationAsync(balanceCardReply);
+                }
+                else if (text.StartsWith("cheque"))
+                {
+                    
+                    try
+                    {
+                        string change = text.Substring(7);
+                        double changeValue = Double.Parse(change);
+                        userAccount.Cheque = userAccount.Cheque + changeValue;
+
+                        await AzureManager.AzureManagerInstance.AddAccounts(userAccount);
+                        string imageUrl;
+                        if (changeValue >= 0.0) imageUrl = responder.positiveImageUrl();
+                        else imageUrl = responder.negativeImageUrl();
+
+                        Activity confirmCard = await buildCardResponse(activity, responder.affirmative(), "Balance updated", $"{userAccount.Cheque}", imageUrl);
+                        await connector.Conversations.SendToConversationAsync(confirmCard);
+
+                    }
+                    catch (Exception e)
+                    {
+                        Activity unkownCard = await buildCardResponse(activity, "", "", responder.unknown(), responder.negativeImageUrl());
+                        await connector.Conversations.SendToConversationAsync(unkownCard);
+                    }
+                }
+                else if (text.StartsWith("savings"))
+                {
+                    string change = text.Substring(8);
+                    try
+                    {
+                        
+                        
+                        double changeValue = Double.Parse(change);
+                        userAccount.Savings = userAccount.Savings + changeValue;
+
+                        await AzureManager.AzureManagerInstance.AddAccounts(userAccount);
+                        string imageUrl;
+                        if (changeValue >= 0.0) imageUrl = responder.positiveImageUrl();
+                        else imageUrl = responder.negativeImageUrl();
+
+                        Activity confirmCard = await buildCardResponse(activity, responder.affirmative(), "Balance updated", $"{userAccount.Savings}", imageUrl);
+                        await connector.Conversations.SendToConversationAsync(confirmCard);
+
+                    }
+                    catch (Exception e)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"ERROR! : {e.Message}");
+                        System.Diagnostics.Debug.WriteLine($"ERROR! : {change}");
+                        Activity unkownCard = await buildCardResponse(activity, "", "", responder.unknown(), responder.negativeImageUrl());
+                        await connector.Conversations.SendToConversationAsync(unkownCard);
+                    }
+                }
+                else
+                {
+                    Activity unkownCard = await buildCardResponse(activity, "", "", responder.unknown(), responder.negativeImageUrl());
+                    await connector.Conversations.SendToConversationAsync(unkownCard);
                 }
 
 

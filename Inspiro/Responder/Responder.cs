@@ -36,7 +36,7 @@ namespace Inspiro.Responders
         {
             if(name == null) return BoringResponder.getInstance();
             if      (name.ToLower().StartsWith("arn")) return ArnieResponder.getInstance();
-            else if (name.ToLower().StartsWith("marx")) return MarxResponder.getInstance();
+            else if (name.ToLower().StartsWith("marx") || name.ToLower().StartsWith("karl")) return MarxResponder.getInstance();
             else return BoringResponder.getInstance();
         }
     }
