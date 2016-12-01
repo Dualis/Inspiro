@@ -65,8 +65,9 @@ namespace Inspiro
                     userAccount = new Accounts();
                 }
 
-
+                
                 string responderName = userData.GetProperty<string>("Responder");
+                System.Diagnostics.Debug.WriteLine(userData.GetProperty<string>("Responder"));
                 if (responderName == null)
                 {
                     responderName = "boring";
@@ -87,7 +88,7 @@ namespace Inspiro
                     userData.SetProperty<string>("Responder", text.Substring(4));
                     responderName = userData.GetProperty<string>("Responder");
                     responder = Responder.GetResponder(responderName);
-
+                    await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
                     Activity greetingCard = await buildCardResponse(activity, $"Now using {responder.getName()}", "", responder.greeting(), responder.neutralImageUrl());
                     await connector.Conversations.SendToConversationAsync(greetingCard);
                 }
