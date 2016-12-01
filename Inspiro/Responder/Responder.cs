@@ -34,8 +34,9 @@ namespace Inspiro.Responders
 
         public static Responder GetResponder(string name)
         {
-            if      (name.StartsWith("arn", StringComparison.CurrentCultureIgnoreCase)) return ArnieResponder.getInstance();
-            else if (name.StartsWith("marx", StringComparison.CurrentCultureIgnoreCase)) return ArnieResponder.getInstance();
+            if(name == null) return BoringResponder.getInstance();
+            if      (name.ToLower().StartsWith("arn")) return ArnieResponder.getInstance();
+            else if (name.ToLower().StartsWith("marx")) return MarxResponder.getInstance();
             else return BoringResponder.getInstance();
         }
     }

@@ -77,7 +77,7 @@ namespace Inspiro.Responders
 
         public override string positiveImageUrl()
         {
-            return neutralImage;
+            return positiveImage;
         }
 
         public override string neutralImageUrl()

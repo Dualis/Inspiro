@@ -37,7 +37,16 @@ namespace Inspiro
 
                 string name = String.Empty;
                 string userId = activity.From.Id.ToString();
-                bool loggedIn = true;// await authoriseUser(activity, connector, text, userId);
+                bool loggedIn = false;
+
+                try
+                {
+                    loggedIn = await authoriseUser(activity, connector, text, userId);
+                }
+                catch (MobileServiceInvalidOperationException e)
+                {
+                    System.Diagnostics.Debug.WriteLine($"ERROR! : {e.Message}");
+                }
 
                 if (!loggedIn)
                 {
@@ -45,8 +54,24 @@ namespace Inspiro
                     return responseOut;
                 }
 
-                Accounts userAccount = await getUserAccount(name);
+                Accounts userAccount;
+                try
+                {
+                    userAccount = await getUserAccount(name);
+                }
+                catch (MobileServiceInvalidOperationException e)
+                {
+                    System.Diagnostics.Debug.WriteLine($"ERROR! : {e.Message}");
+                    userAccount = new Accounts();
+                }
+
+
                 string responderName = userData.GetProperty<string>("Responder");
+                if (responderName == null)
+                {
+                    responderName = "boring";
+                    userData.SetProperty<string>("Responder", responderName);
+                }
                 Responder responder = Responder.GetResponder(responderName);
 
                 //If block for user input
@@ -60,14 +85,19 @@ namespace Inspiro
                     //Sets the users preferred responder
                     //Does not check if a responder exists with that name
                     userData.SetProperty<string>("Responder", text.Substring(4));
+                    responderName = userData.GetProperty<string>("Responder");
+                    responder = Responder.GetResponder(responderName);
 
+                    Activity greetingCard = await buildCardResponse(activity, $"Now using {responder.getName()}", "", responder.greeting(), responder.neutralImageUrl());
+                    await connector.Conversations.SendToConversationAsync(greetingCard);
                 }
                 else if (text.StartsWith("quote"))
                 {
-                    
-                    replyStr = getRandomQuote(responder.getName());
+                    string quote = getRandomQuote(responder.getName());
+                    Activity quoteCard = await buildCardResponse(activity, $"Now using {responder.getName()}", "", quote, responder.neutralImageUrl());
+                    await connector.Conversations.SendToConversationAsync(quoteCard);
                 }
-                else if (text.ToLower().Contains("balance"))
+                else if (text.StartsWith("balance"))
                 {
                     Activity balanceCardReply = await getFullBalance(userAccount, responder, activity);
                     await connector.Conversations.SendToConversationAsync(balanceCardReply);
@@ -130,7 +160,33 @@ namespace Inspiro
             return replyToConversation;
         }
 
+        private async Task<Activity> buildCardResponse(Activity activity, string comment, string title, string subtitle, string imageUrl)
+        {
+            Activity replyToConversation = activity.CreateReply(comment);
+            replyToConversation.Recipient = activity.From;
+            replyToConversation.Type = "message";
+            replyToConversation.Attachments = new List<Attachment>();
 
+            Attachment card = await buildCard(title, subtitle, imageUrl);
+            replyToConversation.Attachments.Add(card);
+            return replyToConversation;
+        }
+
+        private async Task<Attachment> buildCard(string title, string subtitle, string imageUrl)
+        {
+            List<CardImage> cardImages = new List<CardImage>();
+            cardImages.Add(new CardImage(url: imageUrl));
+
+            ThumbnailCard card = new ThumbnailCard()
+            {
+                Title = title,
+                Subtitle = subtitle,
+                Images = cardImages
+            };
+
+            Attachment attachment = card.ToAttachment();
+            return attachment;
+        }
 
         private static async Task<Accounts> getUserAccount(string name)
         {
@@ -231,11 +287,11 @@ namespace Inspiro
             string response = reader.ReadToEnd();
 
             //Cleanup response
-            response = response.Substring(response.IndexOf("== Quotes =="));
-            response = response.Substring(response.IndexOf("==External links=="));
+            //response = response.Substring(response.IndexOf("== Quotes =="));
+            //response = response.Substring(response.IndexOf("==External links=="));
 
 
-            string[] quotes = response.Split("\n* ".ToCharArray());
+            string[] quotes = response.Split("*".ToCharArray());
 
             //TODO:More cleanup
             double index = 1.0 + new Random().NextDouble() * quotes.Length;
