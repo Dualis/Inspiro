@@ -81,7 +81,19 @@ namespace Inspiro
                     await stateClient.BotState.DeleteStateForUserAsync(activity.ChannelId, activity.From.Id);
                     Auth auth = await getUserAuth(userId);
                     await AzureManager.AzureManagerInstance.DeleteAuths(auth);
-                    replyStr = "User data cleared";
+                    replyStr = responder.affirmative();
+                }
+                if (text.StartsWith("set"))
+                {
+                    Auth auth = await getUserAuth(userId);
+                    string[] input = text.Substring(4).Split(':');
+                    if(input.Length != 2)replyStr = responder.unknown();
+                    else
+                    {
+                        auth.Name = input[0];
+                        auth.Password = input[1];
+                        replyStr = responder.affirmative();
+                    }
                 }
                 else if (text.StartsWith("use"))
                 {
